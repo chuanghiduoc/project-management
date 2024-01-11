@@ -1,19 +1,22 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Role, RoleDocument } from './role.entity';
 
 @Injectable()
-export class RoleService {
-  constructor(
-    @InjectModel(Role.name) private readonly roleModel: Model<RoleDocument>,
-  ) {}
+export class RolesService {
+  constructor(@InjectModel(Role.name) private roleModel: Model<RoleDocument>) {}
 
-  async findOne(id: string): Promise<Role> {
-    const role = await this.roleModel.findById(id).exec();
-    if (!role) {
-      throw new NotFoundException('Role not found');
-    }
-    return role;
+  async findAll() {
+    return this.roleModel.find().exec();
+  }
+
+  async findById(id: string) {
+    return this.roleModel.findById(id).exec();
+  }
+
+  async create(role: Role) {
+    const createdRole = new this.roleModel(role);
+    return createdRole.save();
   }
 }

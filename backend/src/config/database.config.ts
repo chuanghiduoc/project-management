@@ -14,7 +14,7 @@ const databaseConfig: TypeOrmModuleOptions = {
     join(__dirname, 'app/projects/**/*.entity{.ts,.js}'),
   ],
   synchronize: true,
-  retryAttempts: 10,
+  autoLoadEntities: true,
 };
 
 export default databaseConfig;

@@ -1,21 +1,27 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  ObjectIdColumn,
+  UpdateDateColumn,
+  ObjectId,
+} from 'typeorm';
 
-export type PermissionDocument = Permission & Document;
+@Entity()
+export class Permission extends BaseEntity {
+  @ObjectIdColumn()
+  _id: ObjectId;
 
-@Schema()
-export class Permission {
-  @Prop({ required: true })
+  @Column({ nullable: false })
   name: string;
 
-  @Prop({ required: true })
+  @Column({ nullable: false })
   description: string;
 
-  @Prop({ default: Date.now })
+  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @Prop({ default: Date.now })
+  @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 }
-
-export const PermissionSchema = SchemaFactory.createForClass(Permission);
