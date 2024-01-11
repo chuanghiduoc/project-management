@@ -3,43 +3,61 @@ import {
   Get,
   Post,
   Body,
-  Put,
   Param,
+  Put,
   Delete,
-  NotFoundException,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { PermissionsService } from './permissions.service';
-import { Permission } from './permission.entity';
+import { Permission } from './permission.schema';
 
 @Controller('permissions')
 export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
 
   @Get()
-  findAll() {
+  findAll(): Promise<Permission[]> {
     return this.permissionsService.findAll();
   }
 
+  @Get(':name')
+  findOneByName(@Param('name') name: string): Promise<Permission | null> {
+    return this.permissionsService.findOneByName(name);
+  }
+
   @Post()
-  create(@Body() permission: Permission) {
+  create(@Body() permission: Permission): Promise<Permission> {
     return this.permissionsService.create(permission);
   }
 
   @Put(':name')
-  update(@Param('name') name: string, @Body() updatedPermission: Permission) {
-    return this.permissionsService.updateByName(name, updatedPermission);
+  @HttpCode(HttpStatus.OK)
+  async updateByName(
+    @Param('name') name: string,
+    @Body() permission: Permission,
+  ): Promise<{ success: boolean; data: Permission | null }> {
+    try {
+      const result = await this.permissionsService.updateByName(
+        name,
+        permission,
+      );
+      return { success: true, data: result.data };
+    } catch (error) {
+      return { success: false, data: null };
+    }
   }
 
   @Delete(':name')
-  async delete(@Param('name') name: string) {
+  @HttpCode(HttpStatus.OK)
+  async deleteByName(
+    @Param('name') name: string,
+  ): Promise<{ success: boolean; data: Permission | null }> {
     try {
-      await this.permissionsService.deleteByName(name);
-      return { message: 'Xoá quyền thành công' };
+      const result = await this.permissionsService.deleteByName(name);
+      return { success: true, data: result.data };
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        return { message: 'Không tìm thấy quyền để xoá' };
-      }
-      throw error;
+      return { success: false, data: null };
     }
   }
 }

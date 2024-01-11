@@ -1,21 +1,12 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-// import { AuthModule } from './auth/auth.module';
-// import { UserModule } from './users/user.module';
-// import { ProjectsModule } from './projects/';
-import databaseConfig from '../config/database.config';
-// import { appConfig } from './config/app.config';
-// import { RolesModule } from './roles/role.module';
-import { PermissionsModule } from './permissions/permission.module';
-
+import { PermissionsModule } from './permissions/permissions.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { RolesModule } from './roles/roles.module';
 @Module({
   imports: [
-    TypeOrmModule.forRoot(databaseConfig),
-    // AuthModule,
-    // UserModule,
-    // RolesModule,
+    MongooseModule.forRoot('mongodb://localhost:27017/project-management'),
     PermissionsModule,
-    // ProjectsModule,
+    RolesModule,
   ],
 })
 export class AppModule {}

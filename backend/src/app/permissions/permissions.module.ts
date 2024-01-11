@@ -1,14 +1,17 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { MongooseModule } from '@nestjs/mongoose';
 import { PermissionsController } from './permissions.controller';
 import { PermissionsService } from './permissions.service';
-import { PermissionRepository } from './permission.repository';
-import { Permission } from './permission.entity';
+import { PermissionSchema } from './permission.schema';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Permission])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: 'Permission', schema: PermissionSchema },
+    ]),
+  ],
   controllers: [PermissionsController],
-  providers: [PermissionsService, PermissionRepository],
+  providers: [PermissionsService],
   exports: [PermissionsService],
 })
 export class PermissionsModule {}

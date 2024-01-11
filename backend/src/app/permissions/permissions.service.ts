@@ -3,61 +3,67 @@ import {
   NotFoundException,
   ConflictException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Permission } from './permission.entity';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { Permission } from './permission.schema';
 
 @Injectable()
 export class PermissionsService {
   constructor(
-    @InjectRepository(Permission)
-    private readonly permissionRepository: Repository<Permission>,
+    @InjectModel('Permission')
+    private readonly permissionModel: Model<Permission>,
   ) {}
 
   async findAll(): Promise<Permission[]> {
-    return this.permissionRepository.find();
+    return this.permissionModel.find().exec();
   }
 
-  async findOneByName(name: string): Promise<Permission | undefined> {
-    return this.permissionRepository.findOne({ where: { name } });
+  async findOneByName(name: string): Promise<Permission | null> {
+    return this.permissionModel.findOne({ name }).exec();
   }
 
   async create(permission: Permission): Promise<Permission> {
-    const existingPermission = await this.findOneByName(permission.name);
-
+    const existingPermission = await this.permissionModel
+      .findOne({ name: permission.name })
+      .exec();
     if (existingPermission) {
-      throw new ConflictException('Quyền đã tồn tại');
+      throw new ConflictException(
+        `Permission with name '${permission.name}' already exists.`,
+      );
     }
 
-    const createdPermission = this.permissionRepository.create(permission);
-    return this.permissionRepository.save(createdPermission);
+    const createdPermission = new this.permissionModel(permission);
+    return createdPermission.save();
   }
 
   async updateByName(
     name: string,
-    updatedPermission: Permission,
-  ): Promise<Permission> {
-    const existingPermission = await this.findOneByName(name);
-
+    permission: Permission,
+  ): Promise<{ success: boolean; data: Permission | null }> {
+    const existingPermission = await this.permissionModel
+      .findOne({ name })
+      .exec();
     if (!existingPermission) {
-      throw new NotFoundException('Quyền không tồn tại');
+      throw new NotFoundException(`Permission with name '${name}' not found.`);
     }
 
-    const updatedPermissionWithoutCreatedAt = { ...updatedPermission };
-    delete updatedPermissionWithoutCreatedAt.createdAt;
-
-    Object.assign(existingPermission, updatedPermissionWithoutCreatedAt);
-
-    return this.permissionRepository.save(existingPermission);
+    permission.updatedAt = new Date();
+    const updatedPermission = await this.permissionModel
+      .findOneAndUpdate({ name }, permission, { new: true })
+      .exec();
+    return { success: true, data: updatedPermission };
   }
 
-  async deleteByName(name: string): Promise<void> {
-    const existingPermission = await this.findOneByName(name);
-
-    if (!existingPermission) {
-      throw new NotFoundException('Quyền không tồn tại');
+  async deleteByName(
+    name: string,
+  ): Promise<{ success: boolean; data: Permission | null }> {
+    const deletedPermission = await this.permissionModel
+      .findOneAndDelete({ name })
+      .exec();
+    if (!deletedPermission) {
+      throw new NotFoundException(`Permission with name '${name}' not found.`);
     }
 
-    await this.permissionRepository.remove(existingPermission);
+    return { success: true, data: deletedPermission };
   }
 }
