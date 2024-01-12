@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model } from 'mongoose'; // Import Types from mongoose
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './user.schema';
-
+import mongoose from 'mongoose';
 @Injectable()
 export class UsersService {
   constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
@@ -41,5 +41,38 @@ export class UsersService {
 
   async delete(userId: string): Promise<User | null> {
     return this.userModel.findByIdAndDelete(userId).exec();
+  }
+
+  async updateProjects(
+    userId: string,
+    projectIds: string[],
+  ): Promise<User | null> {
+    const user = await this.userModel.findById(userId).exec();
+
+    if (!user) {
+      throw new NotFoundException('User not found.');
+    }
+
+    // Use new mongoose.Types.ObjectId(id) to create ObjectId instances
+    user.projects = [
+      ...user.projects,
+      ...projectIds.map((id) => new mongoose.Types.ObjectId(id)),
+    ];
+    user.updatedAt = new Date();
+
+    return user.save();
+  }
+  async updateRoles(userId: string, roleIds: string[]): Promise<User | null> {
+    const user = await this.userModel.findById(userId).exec();
+
+    if (!user) {
+      throw new NotFoundException('User not found.');
+    }
+
+    // Use new mongoose.Types.ObjectId(id) to create ObjectId instances
+    user.roles = roleIds.map((id) => new mongoose.Types.ObjectId(id));
+    user.updatedAt = new Date();
+
+    return user.save();
   }
 }

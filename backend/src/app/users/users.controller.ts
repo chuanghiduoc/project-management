@@ -41,4 +41,19 @@ export class UsersController {
   delete(@Param('id') userId: string): Promise<User | null> {
     return this.usersService.delete(userId);
   }
+
+  @Put(':id/projects')
+  updateProjects(
+    @Param('id') userId: string,
+    @Body('projectIds') projectIds: string[],
+  ): Promise<User | null> {
+    return this.usersService.updateProjects(userId, projectIds);
+  }
+  @Put(':id/roles')
+  updateRoles(
+    @Param('id') userId: string,
+    @Body('roleIds') roleIds: string[],
+  ): Promise<User | null> {
+    return this.usersService.updateRoles(userId, roleIds);
+  }
 }

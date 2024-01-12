@@ -42,11 +42,27 @@ export class ProjectsController {
     return this.projectsService.delete(projectId);
   }
 
-  @Post(':id/tasks/:taskId')
-  assignTaskToProject(
-    @Param('id') projectId: string,
+  @Post(':projectId/tasks/:taskId')
+  addTaskToProject(
+    @Param('projectId') projectId: string,
     @Param('taskId') taskId: string,
   ): Promise<Project | null> {
-    return this.projectsService.assignTaskToProject(projectId, taskId);
+    return this.projectsService.addTaskToProject(projectId, taskId);
+  }
+
+  @Delete(':projectId/tasks/:taskId')
+  removeTaskFromProject(
+    @Param('projectId') projectId: string,
+    @Param('taskId') taskId: string,
+  ): Promise<Project | null> {
+    return this.projectsService.removeTaskFromProject(projectId, taskId);
+  }
+
+  @Put(':projectId/update-tasks/:taskId')
+  updateProjectTasks(
+    @Param('projectId') projectId: string,
+    @Param('taskId') taskId: string,
+  ): Promise<Project | null> {
+    return this.projectsService.updateProjectTasks(projectId, taskId);
   }
 }
