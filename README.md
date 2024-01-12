@@ -1,18 +1,22 @@
-<h1 align="center" id="title">Project management</h1>
+# Project management
 
 <p align="center"><img src="https://socialify.git.ci/chuanghiduoc/project-management/image?description=1&amp;language=1&amp;name=1&amp;owner=1&amp;theme=Light" alt="project-image"></p>
 
-<p id="description">Project management uses nestjs nextjs and mongodb</p>
-  
-<h2>💻 Built with</h2>
+<p id="description">Project management uses Nestjs, Nextjs, and MongoDB</p>
+
+## 💻 Built with
 
 Technologies used in the project:
 
-*   Nextjs
-*   Nestjs
-*   Mongodb
+* Nextjs
+* Nestjs
+* Mongodb
 
-<h2>🛡️ License:</h2>
+## 🛡️ License
 
 This project is licensed under the MIT License
 
+## ⏰ TimeLine
+* **Start:** **11/01/2024**
+* **Current:** Developing the backend
+* **End:** ...
