@@ -18,5 +18,5 @@ This project is licensed under the MIT License
 
 ## ⏰ TimeLine
 * **Start:** **11/01/2024**
-* **Current:** Developing the backend
+* **Current:** Developing the frontend (18/01/2024)
 * **End:** ...
