@@ -3,6 +3,8 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './user.schema';
 import mongoose from 'mongoose';
+import * as bcrypt from 'bcrypt';
+
 @Injectable()
 export class UsersService {
   constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
@@ -16,8 +18,10 @@ export class UsersService {
   }
 
   async create(user: User): Promise<User> {
-    const createdUser = new this.userModel(user);
-    return createdUser.save();
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(user.password, saltRounds);
+    const newUser = new this.userModel({ ...user, password: hashedPassword });
+    return newUser.save();
   }
 
   async update(userId: string, updatedUser: User): Promise<User | null> {
