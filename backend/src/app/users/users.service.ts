@@ -4,11 +4,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from './user.schema';
 import mongoose from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
-
+  constructor(
+    @InjectModel('User') private readonly userModel: Model<User>,
+    private readonly jwtService: JwtService,
+  ) {}
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
   }
@@ -76,5 +79,41 @@ export class UsersService {
     user.updatedAt = new Date();
 
     return user.save();
+  }
+
+  private async generateToken(
+    payload: any,
+    expiresIn: string,
+  ): Promise<string> {
+    return this.jwtService.signAsync(payload, { expiresIn });
+  }
+
+  async updateToken(username: string, refreshToken: string) {
+    await this.userModel
+      .updateOne({ username }, { refresh_token: refreshToken })
+      .exec();
+  }
+
+  async authLogin(username: string, password: string) {
+    const user = await this.userModel.findOne({ username });
+
+    if (!user) {
+      throw new NotFoundException(`User ${username} not found`);
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      throw new NotFoundException('Invalid credentials');
+    }
+
+    const payload = { username: user.username, sub: user._id };
+    const access_token = await this.generateToken(payload, '1h');
+    const refresh_token = await this.generateToken(payload, '7d');
+
+    await this.updateToken(username, refresh_token);
+
+    return {
+      access_token: access_token,
+      refresh_token: refresh_token,
+    };
   }
 }

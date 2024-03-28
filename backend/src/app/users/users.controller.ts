@@ -24,7 +24,7 @@ export class UsersController {
     return this.usersService.findOne(userId);
   }
 
-  @Post()
+  @Post('register')
   create(@Body() user: User): Promise<User> {
     return this.usersService.create(user);
   }
@@ -55,5 +55,9 @@ export class UsersController {
     @Body('roleIds') roleIds: string[],
   ): Promise<User | null> {
     return this.usersService.updateRoles(userId, roleIds);
+  }
+  @Post('login')
+  authLogin(@Body() signInDto: Record<string, any>) {
+    return this.usersService.authLogin(signInDto.username, signInDto.password);
   }
 }
